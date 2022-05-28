@@ -59,7 +59,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
-		result.Transfer, err = q.CreateTransferWithReturn(ctx, CreateTransferParams{
+		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
 			FromAccountID: arg.FromAccountID,
 			ToAccountID:   arg.ToAccountID,
 			Amount:        arg.Amount,
@@ -68,7 +68,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			return err
 		}
 
-		result.FromEntry, err = q.CreateEntryWithReturn(ctx, CreateEntryParams{
+		result.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.FromAccountID,
 			Amount:    -arg.Amount,
 		})
@@ -76,7 +76,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			return err
 		}
 
-		result.ToEntry, err = q.CreateEntryWithReturn(ctx, CreateEntryParams{
+		result.ToEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.ToAccountID,
 			Amount:    arg.Amount,
 		})
@@ -90,43 +90,4 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 	})
 
 	return result, err
-}
-
-func (q *Queries) CreateTransferWithReturn(ctx context.Context, arg CreateTransferParams) (Transfer, error) {
-	var transfer Transfer
-	sqlResult, err := q.CreateTransfer(ctx, arg)
-	if err != nil {
-		return transfer, err
-	}
-
-	id, err := sqlResult.LastInsertId()
-	if err != nil {
-		return transfer, err
-	}
-
-	transfer.ID = id
-	transfer.FromAccountID = arg.FromAccountID
-	transfer.ToAccountID = arg.ToAccountID
-	transfer.Amount = arg.Amount
-
-	return transfer, nil
-}
-
-func (q *Queries) CreateEntryWithReturn(ctx context.Context, arg CreateEntryParams) (Entry, error) {
-	var entry Entry
-	sqlResult, err := q.CreateEntry(ctx, arg)
-	if err != nil {
-		return entry, err
-	}
-
-	id, err := sqlResult.LastInsertId()
-	if err != nil {
-		return entry, err
-	}
-
-	entry.ID = id
-	entry.AccountID = arg.AccountID
-	entry.Amount = arg.Amount
-
-	return entry, nil
 }

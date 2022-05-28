@@ -1,19 +1,21 @@
-.PHONY: mariadb createdb dropdb migrateup migratedown sqlc test
+DB_URL=postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable
 
-mariadb:
-	docker run --detach --name mariadb -p 3308:3306 -e MARIADB_USER=dev -e MARIADB_PASSWORD=123456 -e MARIADB_ROOT_PASSWORD=QazMlp123  mariadb:latest
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc test
+
+postgres:
+	docker run --name postgres -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:latest
 
 createdb:
-	docker exec -it mariadb mysql -u root -pQazMlp123 -e "CREATE DATABASE simple_bank; GRANT ALL PRIVILEGES ON simple_bank.* TO dev@'%' IDENTIFIED BY '123456';"
+	docker exec -it postgres createdb --username=root --owner=root simple_bank
 
 dropdb:
-	docker exec -it mariadb mysql -u dev -p123456 -e "DROP DATABASE simple_bank"
+	docker exec -it postgres dropdb simple_bank
 
 migrateup:
-	migrate -path db/migration -database "mysql://dev:123456@tcp(localhost:3308)/simple_bank" -verbose up
+	migrate -path db/migration -database "${DB_URL}" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "mysql://dev:123456@tcp(localhost:3308)/simple_bank" -verbose down
+	migrate -path db/migration -database "${DB_URL}" -verbose down
 
 sqlc:
 	sqlc generate

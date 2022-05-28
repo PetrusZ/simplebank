@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/PetrusZ/simplebank/util"
 	"github.com/stretchr/testify/require"
@@ -15,19 +16,17 @@ func createRandomEntry(t *testing.T, account Account) Entry {
 		Amount:    util.RandomMoney(),
 	}
 
-	result, err := testQuries.CreateEntry(context.Background(), arg)
+	entry, err := testQuries.CreateEntry(context.Background(), arg)
 	require.NoError(t, err)
-	require.NotEmpty(t, result)
+	require.NotEmpty(t, entry)
 
-	id, err := result.LastInsertId()
-	require.NoError(t, err)
-	require.NotZero(t, id)
+	require.Equal(t, arg.AccountID, entry.AccountID)
+	require.Equal(t, arg.Amount, entry.Amount)
 
-	return Entry{
-		ID:        id,
-		AccountID: account.ID,
-		Amount:    arg.Amount,
-	}
+	require.NotZero(t, entry.ID)
+	require.NotZero(t, entry.CreatedAt)
+
+	return entry
 }
 
 func TestCreateEntry(t *testing.T) {
@@ -42,9 +41,11 @@ func TestGetEntry(t *testing.T) {
 	entry2, err := testQuries.GetEntry(context.Background(), entry1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, entry2)
+
 	require.Equal(t, entry1.ID, entry2.ID)
 	require.Equal(t, entry1.AccountID, entry2.AccountID)
 	require.Equal(t, entry1.Amount, entry2.Amount)
+	require.WithinDuration(t, entry1.CreatedAt, entry2.CreatedAt, time.Second)
 }
 
 func TestDeleteEntry(t *testing.T) {

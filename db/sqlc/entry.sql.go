@@ -7,16 +7,15 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
-const createEntry = `-- name: CreateEntry :execresult
+const createEntry = `-- name: CreateEntry :one
 INSERT INTO entries (
   account_id,
   amount
 ) VALUES (
-  ?, ?
-)
+  $1, $2
+) RETURNING id, account_id, amount, created_at
 `
 
 type CreateEntryParams struct {
@@ -24,13 +23,21 @@ type CreateEntryParams struct {
 	Amount    int64 `json:"amount"`
 }
 
-func (q *Queries) CreateEntry(ctx context.Context, arg CreateEntryParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createEntry, arg.AccountID, arg.Amount)
+func (q *Queries) CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error) {
+	row := q.db.QueryRowContext(ctx, createEntry, arg.AccountID, arg.Amount)
+	var i Entry
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.Amount,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const deleteEntry = `-- name: DeleteEntry :exec
 DELETE FROM entries
-WHERE id = ?
+WHERE id = $1
 `
 
 func (q *Queries) DeleteEntry(ctx context.Context, id int64) error {
@@ -39,8 +46,8 @@ func (q *Queries) DeleteEntry(ctx context.Context, id int64) error {
 }
 
 const getEntry = `-- name: GetEntry :one
-SELECT id, account_id, amount, modified_time, created_time FROM entries
-WHERE id = ? LIMIT 1
+SELECT id, account_id, amount, created_at FROM entries
+WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetEntry(ctx context.Context, id int64) (Entry, error) {
@@ -50,18 +57,17 @@ func (q *Queries) GetEntry(ctx context.Context, id int64) (Entry, error) {
 		&i.ID,
 		&i.AccountID,
 		&i.Amount,
-		&i.ModifiedTime,
-		&i.CreatedTime,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listEntries = `-- name: ListEntries :many
-SELECT id, account_id, amount, modified_time, created_time FROM entries
-WHERE account_id = ?
+SELECT id, account_id, amount, created_at FROM entries
+WHERE account_id = $1
 ORDER BY id
-LIMIT ?
-OFFSET ?
+LIMIT $2
+OFFSET $3
 `
 
 type ListEntriesParams struct {
@@ -83,8 +89,7 @@ func (q *Queries) ListEntries(ctx context.Context, arg ListEntriesParams) ([]Ent
 			&i.ID,
 			&i.AccountID,
 			&i.Amount,
-			&i.ModifiedTime,
-			&i.CreatedTime,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}

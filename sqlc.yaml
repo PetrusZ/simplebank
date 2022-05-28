@@ -4,7 +4,7 @@ packages:
       path: "db/sqlc"
       queries: "./db/query/"
       schema: "./db/migration/"
-      engine: "mysql"
+      engine: "postgresql"
       emit_json_tags: true
       emit_prepared_queries: false
       emit_interface: false

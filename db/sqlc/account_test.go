@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/PetrusZ/simplebank/util"
 	"github.com/stretchr/testify/require"
@@ -16,20 +17,18 @@ func createRandomAccount(t *testing.T) Account {
 		Currency: util.RandomCurrency(),
 	}
 
-	result, err := testQuries.CreateAccount(context.Background(), arg)
+	account, err := testQuries.CreateAccount(context.Background(), arg)
 	require.NoError(t, err)
-	require.NotEmpty(t, result)
+	require.NotEmpty(t, account)
 
-	id, err := result.LastInsertId()
-	require.NoError(t, err)
-	require.NotZero(t, id)
+	require.Equal(t, arg.Owner, account.Owner)
+	require.Equal(t, arg.Balance, account.Balance)
+	require.Equal(t, arg.Currency, account.Currency)
 
-	return Account{
-		ID:       id,
-		Owner:    arg.Owner,
-		Balance:  arg.Balance,
-		Currency: arg.Currency,
-	}
+	require.NotZero(t, account.ID)
+	require.NotZero(t, account.CreatedAt)
+
+	return account
 }
 
 func TestCreateAccount(t *testing.T) {
@@ -56,8 +55,15 @@ func TestUpdateAccount(t *testing.T) {
 		Balance: util.RandomMoney(),
 	}
 
-	err := testQuries.UpdateAccount(context.Background(), arg)
+	account2, err := testQuries.UpdateAccount(context.Background(), arg)
 	require.NoError(t, err)
+	require.NotEmpty(t, account2)
+
+	require.Equal(t, account1.ID, account2.ID)
+	require.Equal(t, account1.Owner, account2.Owner)
+	require.Equal(t, arg.Balance, account2.Balance)
+	require.Equal(t, account1.Currency, account2.Currency)
+	require.WithinDuration(t, account1.CreatedAt, account2.CreatedAt, time.Second)
 }
 
 func TestDeleteAccount(t *testing.T) {

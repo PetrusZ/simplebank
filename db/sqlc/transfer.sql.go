@@ -7,17 +7,16 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
-const createTransfer = `-- name: CreateTransfer :execresult
+const createTransfer = `-- name: CreateTransfer :one
 INSERT INTO transfers (
   from_account_id,
   to_account_id,
   amount
 ) VALUES (
-  ?, ?, ?
-)
+  $1, $2, $3
+) RETURNING id, from_account_id, to_account_id, amount, created_at
 `
 
 type CreateTransferParams struct {
@@ -26,13 +25,22 @@ type CreateTransferParams struct {
 	Amount        int64 `json:"amount"`
 }
 
-func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createTransfer, arg.FromAccountID, arg.ToAccountID, arg.Amount)
+func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) (Transfer, error) {
+	row := q.db.QueryRowContext(ctx, createTransfer, arg.FromAccountID, arg.ToAccountID, arg.Amount)
+	var i Transfer
+	err := row.Scan(
+		&i.ID,
+		&i.FromAccountID,
+		&i.ToAccountID,
+		&i.Amount,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const deleteTransfer = `-- name: DeleteTransfer :exec
 DELETE FROM transfers
-WHERE id = ?
+WHERE id = $1
 `
 
 func (q *Queries) DeleteTransfer(ctx context.Context, id int64) error {
@@ -41,8 +49,8 @@ func (q *Queries) DeleteTransfer(ctx context.Context, id int64) error {
 }
 
 const getTransfer = `-- name: GetTransfer :one
-SELECT id, from_account_id, to_account_id, amount, modified_time, created_time FROM transfers
-WHERE id = ? LIMIT 1
+SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers
+WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetTransfer(ctx context.Context, id int64) (Transfer, error) {
@@ -53,20 +61,19 @@ func (q *Queries) GetTransfer(ctx context.Context, id int64) (Transfer, error) {
 		&i.FromAccountID,
 		&i.ToAccountID,
 		&i.Amount,
-		&i.ModifiedTime,
-		&i.CreatedTime,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listTransfers = `-- name: ListTransfers :many
-SELECT id, from_account_id, to_account_id, amount, modified_time, created_time FROM transfers
+SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers
 WHERE
-    from_account_id = ? OR
-    to_account_id = ?
+    from_account_id = $1 OR
+    to_account_id = $2
 ORDER BY id
-LIMIT ?
-OFFSET ?
+LIMIT $3
+OFFSET $4
 `
 
 type ListTransfersParams struct {
@@ -95,8 +102,7 @@ func (q *Queries) ListTransfers(ctx context.Context, arg ListTransfersParams) ([
 			&i.FromAccountID,
 			&i.ToAccountID,
 			&i.Amount,
-			&i.ModifiedTime,
-			&i.CreatedTime,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
