@@ -1,0 +1,91 @@
+package db
+
+import (
+	"context"
+	"database/sql"
+	"testing"
+
+	"github.com/PetrusZ/simplebank/util"
+	"github.com/stretchr/testify/require"
+)
+
+func createRandomTransfer(t *testing.T, fromAccount, toAccount Account) Transfer {
+	arg := CreateTransferParams{
+		FromAccountID: fromAccount.ID,
+		ToAccountID:   toAccount.ID,
+		Amount:        util.RandomMoney(),
+	}
+	result, err := testQuries.CreateTransfer(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, result)
+
+	id, err := result.LastInsertId()
+	require.NoError(t, err)
+	require.NotZero(t, id)
+
+	return Transfer{
+		ID:            id,
+		FromAccountID: fromAccount.ID,
+		ToAccountID:   toAccount.ID,
+		Amount:        arg.Amount,
+	}
+}
+
+func TestCreateTransfer(t *testing.T) {
+	fromAccount := createRandomAccount(t)
+	toAccount := createRandomAccount(t)
+	createRandomTransfer(t, fromAccount, toAccount)
+}
+
+func TestGetTransfer(t *testing.T) {
+	fromAccount := createRandomAccount(t)
+	toAccount := createRandomAccount(t)
+	transfer1 := createRandomTransfer(t, fromAccount, toAccount)
+
+	transfer2, err := testQuries.GetTransfer(context.Background(), transfer1.ID)
+	require.NoError(t, err)
+	require.Equal(t, transfer1.ID, transfer2.ID)
+	require.Equal(t, transfer1.FromAccountID, transfer2.FromAccountID)
+	require.Equal(t, transfer1.ToAccountID, transfer2.ToAccountID)
+	require.Equal(t, transfer1.Amount, transfer2.Amount)
+}
+
+func TestDeleteTransfer(t *testing.T) {
+	fromAccount := createRandomAccount(t)
+	toAccount := createRandomAccount(t)
+	transfer1 := createRandomTransfer(t, fromAccount, toAccount)
+
+	err := testQuries.DeleteTransfer(context.Background(), transfer1.ID)
+	require.NoError(t, err)
+
+	transfer2, err := testQuries.GetTransfer(context.Background(), transfer1.ID)
+	require.Error(t, err)
+	require.EqualError(t, err, sql.ErrNoRows.Error())
+	require.Empty(t, transfer2)
+}
+
+func TestListTransfer(t *testing.T) {
+	account1 := createRandomAccount(t)
+	account2 := createRandomAccount(t)
+
+	for i := 0; i < 10; i++ {
+		createRandomTransfer(t, account1, account2)
+		createRandomTransfer(t, account2, account1)
+	}
+
+	arg := ListTransfersParams{
+		FromAccountID: account1.ID,
+		ToAccountID:   account1.ID,
+		Offset:        5,
+		Limit:         5,
+	}
+
+	transfers, err := testQuries.ListTransfers(context.Background(), arg)
+	require.NoError(t, err)
+	require.Len(t, transfers, 5)
+
+	for _, transfer := range transfers {
+		require.NotEmpty(t, transfer)
+		require.True(t, transfer.FromAccountID == account1.ID || transfer.ToAccountID == account1.ID)
+	}
+}

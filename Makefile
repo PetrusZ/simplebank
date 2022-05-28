@@ -1,4 +1,4 @@
-.PHONY: mariadb createdb dropdb migrateup migratedown sqlc
+.PHONY: mariadb createdb dropdb migrateup migratedown sqlc test
 
 mariadb:
 	docker run --detach --name mariadb -p 3308:3306 -e MARIADB_USER=dev -e MARIADB_PASSWORD=123456 -e MARIADB_ROOT_PASSWORD=QazMlp123  mariadb:latest
@@ -17,3 +17,6 @@ migratedown:
 
 sqlc:
 	sqlc generate
+
+test:
+	go test -v -cover ./...
