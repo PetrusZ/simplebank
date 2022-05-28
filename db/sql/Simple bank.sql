@@ -1,6 +1,6 @@
 CREATE TABLE `accounts` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `onwer` varchar(255) NOT NULL,
+  `owner` varchar(255) NOT NULL,
   `balance` bigint NOT NULL,
   `currency` varchar(255) NOT NULL,
   `modified_time` timestamp NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE `transfers` (
   `created_time` timestamp NOT NULL DEFAULT (now())
 );
 
-CREATE INDEX `accounts_index_0` ON `accounts` (`onwer`);
+CREATE INDEX `accounts_index_0` ON `accounts` (`owner`);
 
 CREATE INDEX `entries_index_1` ON `entries` (`account_id`);
 
