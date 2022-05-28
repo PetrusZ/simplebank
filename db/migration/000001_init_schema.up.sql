@@ -1,10 +1,10 @@
 CREATE TABLE `accounts` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `onwer` varchar(255) NOT NULL,
+  `owner` varchar(255) NOT NULL,
   `balance` bigint NOT NULL,
   `currency` varchar(255) NOT NULL,
   `modified_time` timestamp NOT NULL,
-  `created_time` timestamp NOT NULL DEFAULT (now())
+  `created_time` timestamp NOT NULL DEFAULT now()
 );
 
 CREATE TABLE `entries` (
@@ -12,7 +12,7 @@ CREATE TABLE `entries` (
   `account_id` bigint NOT NULL,
   `amount` bigint NOT NULL COMMENT 'can be negative or positive',
   `modified_time` timestamp NOT NULL,
-  `created_time` timestamp NOT NULL DEFAULT (now())
+  `created_time` timestamp NOT NULL DEFAULT now()
 );
 
 CREATE TABLE `transfers` (
@@ -21,10 +21,10 @@ CREATE TABLE `transfers` (
   `to_account_id` bigint NOT NULL,
   `amount` bigint NOT NULL COMMENT 'must be positive',
   `modified_time` timestamp NOT NULL,
-  `created_time` timestamp NOT NULL DEFAULT (now())
+  `created_time` timestamp NOT NULL DEFAULT now()
 );
 
-CREATE INDEX `accounts_index_0` ON `accounts` (`onwer`);
+CREATE INDEX `accounts_index_0` ON `accounts` (`owner`);
 
 CREATE INDEX `entries_index_1` ON `entries` (`account_id`);
 
