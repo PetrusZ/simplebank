@@ -9,7 +9,7 @@ CREATE TABLE `accounts` (
 
 CREATE TABLE `entries` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `account_id` bigint,
+  `account_id` bigint NOT NULL,
   `amount` bigint NOT NULL COMMENT 'can be negative or positive',
   `modified_time` timestamp NOT NULL,
   `created_time` timestamp NOT NULL DEFAULT (now())
@@ -17,8 +17,8 @@ CREATE TABLE `entries` (
 
 CREATE TABLE `transfers` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `from_account_id` bigint,
-  `to_account_id` bigint,
+  `from_account_id` bigint NOT NULL,
+  `to_account_id` bigint NOT NULL,
   `amount` bigint NOT NULL COMMENT 'must be positive',
   `modified_time` timestamp NOT NULL,
   `created_time` timestamp NOT NULL DEFAULT (now())
