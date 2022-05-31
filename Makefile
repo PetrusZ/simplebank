@@ -1,6 +1,6 @@
 DB_URL=postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc test server
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc test server mock
 
 postgres:
 	docker run --name postgres -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:latest
@@ -25,3 +25,6 @@ test:
 
 server:
 	go run main.go
+
+mock:
+	mockgen --build_flags=--mod=mod -package mockdb -destination db/mock/store.go github.com/PetrusZ/simplebank/db/sqlc Store
