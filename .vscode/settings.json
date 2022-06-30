@@ -1,0 +1,7 @@
+{
+    "makefile.extensionOutputFolder": "./.vscode",
+    "github-actions.workflows.pinned.workflows": [
+        ".github/workflows/test.yml",
+        ".github/workflows/deploy.yml"
+    ]
+}
