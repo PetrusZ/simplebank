@@ -3,5 +3,10 @@
     "github-actions.workflows.pinned.workflows": [
         ".github/workflows/test.yml",
         ".github/workflows/deploy.yml"
-    ]
+    ],
+    "protoc": {
+        "options": [
+            "--proto_path=proto",
+        ]
+    }
 }
