@@ -1,3 +1,7 @@
+-- SQL dump generated using DBML (dbml-lang.org)
+-- Database: PostgreSQL
+-- Generated at: 2022-06-30T16:02:17.637Z
+
 CREATE TABLE "users" (
   "username" varchar PRIMARY KEY,
   "hashed_password" varchar NOT NULL,
