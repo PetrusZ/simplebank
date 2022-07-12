@@ -46,12 +46,12 @@ jobs:
         token: ${{ secrets.OKTETO_TOKEN }}
 
     - name: Activate Okteto Namespace
+      id: namespace
       uses: okteto/namespace@latest
       with:
         namespace: simplebank-petrusz
 
     - name: Deploy image to okteto
       run: |
-        cp /github/home/.kube/config ~/.kube/config
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
+        kubectl apply -f k8s/deployment.yaml --kubeconfig ${{ steps.namespace.outputs.kubeconfig }}
+        kubectl apply -f k8s/service.yaml --kubeconfig ${{ steps.namespace.outputs.kubeconfig }}
