@@ -7,7 +7,7 @@ on:
 jobs:
 
   deploy:
-    name: Build image
+    name: Deploy to production
     runs-on: ubuntu-latest
 
     steps:
@@ -20,15 +20,15 @@ jobs:
         version: 'v1.24.2'
       id: install
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-east-1
-
     - name: Load secrets and save to app.env
-      run: aws secretsmanager get-secret-value --secret-id simple_bank --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > app.env
+      run: |
+        echo ${{ secrets.DB_SOURCE }} > app.env
+        echo ${{ secrets.DB_DRIVER }} >> app.env
+        echo ${{ secrets.HTTP_SERVER_ADDRESS }} >> app.env
+        echo ${{ secrets.GRPC_SERVER_ADDRESS }} >> app.env
+        echo ${{ secrets.TOKEN_SYMMETRIC_KEY }} >> app.env
+        echo ${{ secrets.ACCESS_TOKEN_DURATION }} >> app.env
+        echo ${{ secrets.REFRESH_TOKEN_DURATION }} >> app.env
 
     - name: Build, tag, and push image to DockerHub
       env:
@@ -43,7 +43,7 @@ jobs:
     - name: Deploy image to okteto
       run: |
         curl https://get.okteto.com -sSfL | sh
-        okteto context use https://cloud.okteto.com -t  ${{ secrets.OKTETO_TOKEN }}
+        okteto context use https://cloud.okteto.com -t ${{ secrets.OKTETO_TOKEN }}
         okteto kubeconfig
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
