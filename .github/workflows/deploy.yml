@@ -22,13 +22,13 @@ jobs:
 
     - name: Load secrets and save to app.env
       run: |
-        echo ${{ secrets.DB_SOURCE }} > app.env
-        echo ${{ secrets.DB_DRIVER }} >> app.env
-        echo ${{ secrets.HTTP_SERVER_ADDRESS }} >> app.env
-        echo ${{ secrets.GRPC_SERVER_ADDRESS }} >> app.env
-        echo ${{ secrets.TOKEN_SYMMETRIC_KEY }} >> app.env
-        echo ${{ secrets.ACCESS_TOKEN_DURATION }} >> app.env
-        echo ${{ secrets.REFRESH_TOKEN_DURATION }} >> app.env
+        echo "DB_SOURCE=${{ secrets.DB_SOURCE }}" > app.env
+        echo "DB_DRIVER=${{ secrets.DB_DRIVER }}" >> app.env
+        echo "HTTP_SERVER_ADDRESS=${{ secrets.HTTP_SERVER_ADDRESS }}" >> app.env
+        echo "GRPC_SERVER_ADDRESS=${{ secrets.GRPC_SERVER_ADDRESS }}" >> app.env
+        echo "TOKEN_SYMMETRIC_KEY=${{ secrets.TOKEN_SYMMETRIC_KEY }}" >> app.env
+        echo "ACCESS_TOKEN_DURATION=${{ secrets.ACCESS_TOKEN_DURATION }}" >> app.env
+        echo "REFRESH_TOKEN_DURATION=${{ secrets.REFRESH_TOKEN_DURATION }}" >> app.env
 
     - name: Build, tag, and push image to DockerHub
       env:
@@ -47,3 +47,4 @@ jobs:
         okteto kubeconfig
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
+        kubectl rollout restart deployment simple-bank-api-deployment
