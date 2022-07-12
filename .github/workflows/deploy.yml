@@ -36,6 +36,7 @@ jobs:
         REPOSITORY: simple-bank
         IMAGE_TAG: ${{ github.sha }}
       run: |
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u $REGISTRY --password-stdin
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
         docker push -a $REGISTRY/$REPOSITORY
 
