@@ -50,6 +50,10 @@ jobs:
       uses: okteto/namespace@latest
       with:
         namespace: simplebank-petrusz
-      run:
-        okteto up -f k8s/deployment.yaml
-        okteto up -f k8s/service.yaml
+
+    - name: Deploy image to okteto
+      run: |
+        curl https://get.okteto.com -sSfL | sh
+        okteto kubeconfig
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
