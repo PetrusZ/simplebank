@@ -52,5 +52,6 @@ jobs:
 
     - name: Deploy image to okteto
       run: |
+        cat ~/.kube/config
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
