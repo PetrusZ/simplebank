@@ -40,20 +40,10 @@ jobs:
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
         docker push -a $REGISTRY/$REPOSITORY
 
-    - name: Configure okteto context
-      uses: okteto/context@latest
-      with:
-        token: ${{ secrets.OKTETO_TOKEN }}
-
-    - name: Activate Okteto Namespace
-      id: namespace
-      uses: okteto/namespace@latest
-      with:
-        namespace: simplebank-petrusz
-
     - name: Deploy image to okteto
       run: |
         curl https://get.okteto.com -sSfL | sh
+        okteto context use https://cloud.okteto.com -t  ${{ secrets.OKTETO_TOKEN }}
         okteto kubeconfig
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
