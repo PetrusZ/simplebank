@@ -1,6 +1,6 @@
 DB_URL=postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable
 
-.PHONY: postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock proto evans
+.PHONY: postgres createdb dropdb docker_mac migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock proto evans
 
 postgres:
 	docker run --name postgres --network bank-network -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:latest
@@ -10,6 +10,9 @@ createdb:
 
 dropdb:
 	docker exec -it postgres dropdb simple_bank
+
+docker_mac:
+	docker buildx build --push  --platform linux/amd64,linux/arm64 -t patrickz07/simple-bank:latest .
 
 migrateup:
 	migrate -path db/migration -database "${DB_URL}" -verbose up
