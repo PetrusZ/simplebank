@@ -3,7 +3,6 @@ FROM golang:1.18.3-alpine3.16 AS builder
 WORKDIR /app
 COPY . .
 RUN go build -o main main.go
-RUN apk add curl
 
 # Run stage
 FROM alpine:3.16
@@ -12,7 +11,7 @@ COPY --from=builder /app/main .
 COPY app.env .
 COPY start.sh .
 COPY wait-for.sh .
-COPY db/migration ./migration
+COPY db/migration ./db/migration
 
 EXPOSE 8080
 EXPOSE 9090
