@@ -51,4 +51,4 @@ jobs:
         okteto kubeconfig
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
-        kubectl rollout restart deployment simple-bank-api-deployment --namespace=simplebank-petrusz
+        kubectl rollout restart deployment simple-bank-api-deployment --namespace=simplebank
