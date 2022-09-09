@@ -126,7 +126,7 @@ The service that we’re going to build is a simple bank. It will provide APIs f
 - Create namespace
 
     ```bash
-    kubectl create namespace simplebank
+    kubectl create namespace simplebank-petrusz
     ```
 
 - Create secret
