@@ -12,7 +12,7 @@ dropdb:
 	docker exec -it postgres dropdb simple_bank
 
 docker_mac:
-	docker buildx build --push  --platform linux/amd64,linux/arm64 -t patrickz07/simple-bank:latest .
+	docker buildx build --push --platform linux/amd64,linux/arm64 -t patrickz07/simple-bank:latest .
 
 migrateup:
 	migrate -path db/migration -database "${DB_URL}" -verbose up
