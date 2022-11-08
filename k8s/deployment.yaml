@@ -22,3 +22,5 @@ spec:
         ports:
         - containerPort: 8080
         - containerPort: 9090
+      imagePullSecrets:
+      - name: dockerhub-key

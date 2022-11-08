@@ -12,6 +12,7 @@ ORIG_TAG=`grep image: k8s/deployment.yaml | awk -F ':' '{print $3}'`
 changeConfig() {
     gsed -i "s#DB_URL=.*#DB_URL=${DB_SOURCE}#" Makefile
     gsed -i "s#DB_SOURCE=.*#DB_SOURCE=${DB_SOURCE}#" app.env
+    gsed -i "s#ENVIRONMENT=.*#ENVIRONMENT=production#" app.env
     gsed -i "s#image: patrickz07/simple-bank:.*#image: patrickz07/simple-bank:${TAG}#" k8s/deployment.yaml
 }
 
@@ -19,6 +20,7 @@ changeConfig() {
 restoreConfig() {
     gsed -i "s#DB_URL=.*#DB_URL=${ORIG_DB_SOURCE}#" Makefile
     gsed -i "s#DB_SOURCE=.*#DB_SOURCE=${ORIG_DB_SOURCE}#" app.env
+    gsed -i "s#ENVIRONMENT=.*#ENVIRONMENT=development#" app.env
     gsed -i "s#image: patrickz07/simple-bank:.*#image: patrickz07/simple-bank:${ORIG_TAG}#" k8s/deployment.yaml
 }
 
@@ -39,6 +41,5 @@ docker buildx build --push --platform linux/amd64,linux/arm64 -t $REGISTRY/$REPO
 ## Deploy to k8s
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
-kubectl apply -f k8s/issuer.yaml
 kubectl apply -f k8s/ingress.yaml
 kubectl rollout restart deployment simple-bank-api-deployment --namespace=simplebank-petrusz
