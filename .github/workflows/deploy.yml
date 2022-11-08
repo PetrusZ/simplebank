@@ -25,6 +25,7 @@ jobs:
 
     - name: Load secrets and save to app.env
       run: |
+        echo "ENVIRONMENT=production" > app.env
         echo "DB_SOURCE=${{ secrets.DB_SOURCE }}" > app.env
         echo "DB_DRIVER=${{ secrets.DB_DRIVER }}" >> app.env
         echo "MIGRATION_URL=${{ secrets.MIGRATION_URL }}" >> app.env
