@@ -1,14 +1,7 @@
 apiVersion: networking.k8s.io/v1
-kind: IngressClass
-metadata:
-  name: nginx
-spec:
-  controller: k8s.io/ingress-nginx
----
-apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: simple-bank-ingress
+  name: simple-bank-rest-ingress
   namespace: simplebank-petrusz
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
@@ -29,3 +22,30 @@ spec:
   - hosts:
     - simple-bank-api.codeplayer.org
     secretName: simple-bank-api-cert
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: simple-bank-grpc-ingress
+  namespace: simplebank-petrusz
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: simple-bank-grpc.codeplayer.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: simple-bank-api-service
+            port:
+              number: 9090
+  tls:
+  - hosts:
+    - simple-bank-grpc.codeplayer.org
+    secretName: simple-bank-grpc-cert
