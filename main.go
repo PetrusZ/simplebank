@@ -36,7 +36,7 @@ func main() {
 	}
 
 	if config.Environment == "development" {
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr}).Level(zerolog.DebugLevel)
 	}
 
 	conn, err := sql.Open(config.DBDriver, config.DBSource)
