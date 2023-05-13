@@ -1,6 +1,6 @@
-DB_URL=postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable
+DB_URL=postgresql://local:local_secret07@postgresql-primary.codeplayer.org:5432/simple_bank_dev?sslmode=disable
 
-.PHONY: postgres createdb dropdb redis docker_mac migrateup migratedown migrateup1 migratedown1 new_migration db_docs db_schema sqlc test server mock proto evans
+.PHONY: postgres createdb dropdb redis docker migrateup migratedown migrateup1 migratedown1 new_migration db_docs db_schema sqlc test server mock proto evans
 
 postgres:
 	docker run --name postgres --network bank-network -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:latest
@@ -14,7 +14,7 @@ dropdb:
 redis:
 	docker run  --name redis -p 6379:6379 -d redis:7-alpine
 
-docker_mac:
+docker:
 	docker buildx build --push --platform linux/amd64,linux/arm64 -t patrickz07/simple-bank:latest .
 
 migrateup:

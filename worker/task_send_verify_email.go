@@ -58,8 +58,8 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 	}
 
 	verifyEmail, err := processor.store.CreateVerifyEmail(ctx, db.CreateVerifyEmailParams{
-		Username: user.Username,
-		Email: user.Email,
+		Username:   user.Username,
+		Email:      user.Email,
 		SecretCode: util.RandomString(32),
 	})
 	if err != nil {
@@ -67,7 +67,7 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 	}
 
 	subject := "Welcome to Simple Bank"
-	verifyURL := fmt.Sprintf("http://simpble-bank.org/verify_email?id=%d&secret_code=%s", verifyEmail.ID, verifyEmail.SecretCode)
+	verifyURL := fmt.Sprintf("http://localhost:8080/v1/verify_email?email_id=%d&secret_code=%s", verifyEmail.ID, verifyEmail.SecretCode)
 	content := fmt.Sprintf(`Hello %s,<br/>
 	Thank you for registering with us!<br/>
 	Please <a href="%s">click here</a> to verify your email address.<br/>
