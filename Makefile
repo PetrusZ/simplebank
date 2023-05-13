@@ -1,4 +1,5 @@
 DB_URL=postgresql://local:local_secret07@postgresql-primary.codeplayer.org:5432/simple_bank_dev?sslmode=disable
+DB_URL_CI=postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable
 
 .PHONY: postgres createdb dropdb redis docker migrateup migratedown migrateup1 migratedown1 new_migration db_docs db_schema sqlc test server mock proto evans
 
@@ -19,6 +20,9 @@ docker:
 
 migrateup:
 	migrate -path db/migration -database "${DB_URL}" -verbose up
+
+migrateup_ci:
+	migrate -path db/migration -database "${DB_URL_CI}" -verbose up
 
 migrateup1:
 	migrate -path db/migration -database "${DB_URL}" -verbose up 1
@@ -49,6 +53,7 @@ server:
 
 mock:
 	mockgen --build_flags=--mod=mod -package mockdb -destination db/mock/store.go github.com/PetrusZ/simplebank/db/sqlc Store
+	mockgen --build_flags=--mod=mod -package mockwk -destination worker/mock/distributor.go github.com/PetrusZ/simplebank/worker TaskDistributor
 
 evans:
 	evans -r repl --host localhost --port 9090
