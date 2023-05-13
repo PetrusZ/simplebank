@@ -26,7 +26,7 @@ jobs:
     - name: Load secrets and save to app.env
       run: |
         echo "ENVIRONMENT=production" > app.env
-        echo "DB_SOURCE=${{ secrets.DB_SOURCE }}" > app.env
+        echo "DB_SOURCE=${{ secrets.DB_SOURCE }}" >> app.env
         echo "DB_DRIVER=${{ secrets.DB_DRIVER }}" >> app.env
         echo "REDIS_ADDRESS=${{ secrets.REDIS_ADDRESS }}" >> app.env
         echo "REDIS_DB=${{ secrets.REDIS_DB }}" >> app.env
@@ -36,6 +36,9 @@ jobs:
         echo "TOKEN_SYMMETRIC_KEY=${{ secrets.TOKEN_SYMMETRIC_KEY }}" >> app.env
         echo "ACCESS_TOKEN_DURATION=${{ secrets.ACCESS_TOKEN_DURATION }}" >> app.env
         echo "REFRESH_TOKEN_DURATION=${{ secrets.REFRESH_TOKEN_DURATION }}" >> app.env
+        echo "EMAIL_SENDER_NAME=${{ secrets.EMAIL_SENDER_NAME}}" >> app.env
+        echo "EMAIL_SENDER_ADDRESS=${{ secrets.EMAIL_SENDER_ADDRESS}}" >> app.env
+        echo "EMAIL_SENDER_PASSWORD=${{ secrets.EMAIL_SENDER_PASSWORD }}" >> app.env
 
     - name: Build, tag, and push image to DockerHub
       env:
